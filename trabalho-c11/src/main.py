@@ -63,3 +63,6 @@ print("\n=== Quais empresas mais contratam profissionais de Data Science? ===")
 empresas_mais_ativas = df['company'].value_counts().head(10)
 print(empresas_mais_ativas.to_string())
 #TODO: MELHORAR ESSA PERGUNTA 
+
+# Testando o git do joao aqui, assinado: Kato, se der algum B.O no código nesse git aqui
+# relaxa que eu assumo a responsabilidade
