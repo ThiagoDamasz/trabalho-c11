@@ -32,8 +32,16 @@ df['country'] = df['location'].str.split(',').str[2].str.strip()
 
 #1 Qual o salário médio por cargo?
 print("\n=== Qual o salário médio por cargo(anual)? ===")
-salario_cargo = df.groupby('job_title')['salary_avg'].mean().to_string()
+salario_cargo = df.groupby('job_title')['salary_avg'].mean().sort_values()
 print(salario_cargo)
+
+plt.figure(figsize=(10,6))
+plt.bar(salario_cargo.index[::1], salario_cargo.values[::1], color='palegreen', width=0.8)
+plt.title('Cargos com maior salário médio anual (€)', fontsize = 14)
+plt.xlabel('Cargo', fontsize = 10)
+plt.ylabel('Salário médio anual(€)', fontsize = 12)
+plt.grid(axis='y', alpha=0.6)
+plt.show()
 
 #2 Qual a diferença de salário médio por nível de senioridade (junior, pleno, senior) ?
 print("\n=== Qual o salário médio por nível de senioridade? ===")
@@ -53,8 +61,16 @@ print(salario_localizacao)
 
 #5 Qual empresa contrata mais profissionais de Data Science?
 print("\n=== Quais empresas mais contratam profissionais de Data Science? ===")
-empresas_cont = df['company'].value_counts().head(10)
+empresas_cont = df['company'].value_counts().head(5)
 print(empresas_cont.to_string())
+
+plt.figure(figsize=(10,6))
+plt.bar(empresas_cont.index[::1], empresas_cont.values[::1], color='paleturquoise', width=0.6)
+plt.title('Quantidade de posts de vagas de emprego', fontsize=14)
+plt.xlabel('Numero da empresa', fontsize = 12)
+plt.ylabel('Quantidade de posts', fontsize = 11)
+plt.grid(axis='y', alpha=0.6)
+plt.show()
 
 #6 Qual o nivel de experiencia mais requisitado pelas empresas?
 print("\n=== Qual o nivel de experiencia mais requisitado pelas empresas? ===")
@@ -63,6 +79,23 @@ print(nivel_exp)
 
 #7 Quais sao as 5 empresas com mais receita no mercado?
 print("\n=== Quais as 5 empresas com mais receita no mercado? ===")
+df['revenue_clean'] = (
+    df['revenue']
+    .astype(str)
+    .str.replace('€', '')
+    .str.replace(',', '')
+    .str.replace('Private', '')
+    .str.replace('Public', '')
+    .str.replace('Nonprofit', '')
+    .str.replace('Education', '')
+    .str.replace('B', '')
+)
+
+revenue_top = ( df[['company', 'revenue_clean']].sort_values(by='revenue_clean', ascending=False).head())
+
+print(revenue_top)
+
+#alguem arruma essa pergunta ai porfavor pois nao consegui
 
 #8 Quais sao as habilidades mais requisitadas pelas empresas?
 print("\n=== Quais sao as habilidades mais requisitadas pelas empresas? ===")
@@ -80,6 +113,20 @@ df_exploded = df_exploded[df_exploded['skills_list'].astype(bool)]
 habilidades = df_exploded['skills_list'].value_counts().head(10)
 print(habilidades)
 
+plt.figure(figsize=(8, 8))
+plt.pie(
+    habilidades.values,
+    labels=habilidades.index,
+    autopct='%1.1f%%',
+    startangle=140,
+    colors=plt.cm.tab10.colors,
+    wedgeprops={'edgecolor': 'white'}
+)
+
+plt.title('As 10 habilidades mais requisitadas pelas empresas', fontsize=14)
+plt.tight_layout()
+plt.show()
+
 #9 Qual tipo de empresa (Publica ou Privada) que melhor paga os funcionarios?
 print("\n=== Qual o tipo de empresa (Public ou Private) está pagando mais? ===")
 df = df.dropna(subset=["ownership", "salary_avg"])
@@ -89,5 +136,4 @@ print(tipo_emp)
 #10 Quais setores da Industria que menos utilizam data science?
 print("\n=== Qual setor da Industria contrata menos profissionais de data science? ===")
 industria = df['industry'].value_counts().sort_values()
-print("\nIndustrias que menos utilizam:")
 print(industria.head(3))
