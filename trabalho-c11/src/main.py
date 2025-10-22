@@ -59,11 +59,15 @@ salario_medio_por_regime = df.groupby('status')['salary_avg'].mean().to_string()
 print("\n===Qual o salário médio por regime de trabalho? ===")
 print(salario_medio_por_regime)
 
-#4 Qual país paga os maiores salários para profissionais de Data Science? 
-print("\n===Quais são os países que possuem os melhores salários? ===")
-salario_localizacao = df.groupby('country')['salary_avg'].mean().to_string()
-print(salario_localizacao)
-#Melhorar a resposta que so esta mostrando em ordem alfabetica
+#4 Qual localização paga os maiores salários para profissionais de Data Science? 
+print("\n=== Quais são as 5 localizações com os melhores salários? ===")
+
+salario_por_pais = df.groupby('country')['salary_avg'].mean()
+
+# Ordenar do maior para o menor e pegar os 5 primeiros
+top5_paises = salario_por_pais.sort_values(ascending=False).head(5)
+
+print(top5_paises)
 
 #5 Qual empresa contrata mais profissionais de Data Science?
 print("\n=== Quais empresas mais contratam profissionais de Data Science? ===")
