@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 dataset_path = r"C:\Users\Thiag\OneDrive\Documentos\Projeto_c11\trabalho-c11\data\data_science_job_posts_2025.csv"
 
@@ -43,10 +44,15 @@ plt.ylabel('Salário médio anual(€)', fontsize = 12)
 plt.grid(axis='y', alpha=0.6)
 plt.show()
 
-#2 Qual a diferença de salário médio por nível de senioridade (junior, pleno, senior) ?
+#2 Qual a diferença de salário médio por nível de senioridade (junior, pleno, senior) ? (Em numpy)
+seniority = df['seniority_level'].fillna('Unknown').to_numpy()
+salary = df['salary_avg'].to_numpy()
+unique_levels, inverse_idx = np.unique(seniority, return_inverse=True) # niveis unicos e indices inversos
+salary_mean_by_level = np.bincount(inverse_idx, weights=salary) / np.bincount(inverse_idx)
 print("\n=== Qual o salário médio por nível de senioridade? ===")
-salario_senioridade = df.groupby('seniority_level')['salary_avg'].mean().to_string()
-print(salario_senioridade)
+for level, avg in zip(unique_levels, salary_mean_by_level):
+    print(f"{level}: {avg:.2f}")
+
 
 #3 Qual o salário médio por regime de trabalho (hibrído, presencial ou remoto) ?
 salario_medio_por_regime = df.groupby('status')['salary_avg'].mean().to_string()
@@ -77,23 +83,40 @@ print("\n=== Qual o nivel de experiencia mais requisitado pelas empresas? ===")
 nivel_exp = df['seniority_level'].value_counts().to_string()
 print(nivel_exp)
 
-#7 Quais sao as 5 empresas com mais receita no mercado?
+#7 Quais sao as 5 empresas com mais receita no mercado? (numpy)
 print("\n=== Quais as 5 empresas com mais receita no mercado? ===")
-df['revenue_clean'] = (
-    df['revenue']
-    .astype(str)
-    .str.replace('€', '')
-    .str.replace(',', '')
-    .str.replace('Private', '')
-    .str.replace('Public', '')
-    .str.replace('Nonprofit', '')
-    .str.replace('Education', '')
-    .str.replace('B', '')
-)
+company = df['company'].to_numpy()
+size = df['company_size'].to_numpy()
 
-revenue_top = ( df[['company', 'revenue_clean']].sort_values(by='revenue_clean', ascending=False).head())
+size_str = np.array(size, dtype=str)
+size_str[size_str == 'nan'] = '0'
 
-print(revenue_top)
+# Limpeza dos caracteres
+size_clean = np.char.replace(size_str, '"', '')
+size_clean = np.char.replace(size_clean, '€', '')
+size_clean = np.char.replace(size_clean, ',', '')
+size_clean = np.char.replace(size_clean, 'B', '')
+size_clean = np.char.replace(size_clean, '.', '')
+size_clean = np.char.replace(size_clean, 'Private', '')
+
+# Colocar 0 onde não for número
+size_clean = np.where(np.char.isdigit(size_clean), size_clean, '0')
+
+# Converter para inteiro
+size_num = size_clean.astype(int)
+
+# Remover repetições de empresas (mantendo o primeiro registro)
+unique_companies, unique_indices = np.unique(company, return_index=True)
+unique_sizes = size_num[unique_indices]
+
+# Pegar os índices das 5 maiores empresas únicas
+top_idx = np.argsort(unique_sizes)[-5:][::-1]
+
+# Exibir resultado com for, linha por linha
+print("As 5 empresas com mais receita no mercado são:")
+for i in top_idx:
+    print(f"{unique_companies[i]} ({unique_sizes[i]})")
+
 
 #alguem arruma essa pergunta ai porfavor pois nao consegui
 
